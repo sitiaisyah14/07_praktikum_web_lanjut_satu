@@ -44,6 +44,7 @@
                             aria-describedby="no_handphone">
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
+                    <a class="btn btn-success" href="{{route('mahasiswa.index')}}"> Kembali </a>
                 </form>
             </div>
         </div>

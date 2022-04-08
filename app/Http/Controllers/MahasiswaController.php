@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Kelas;
 use App\Models\Mahasiswa;
+use App\Models\Mahasiswa_MataKuliah;
+use App\Models\MataKuliah;
 use Illuminate\Http\Request;
+use MahasiswaMatakuliah;
 
 class MahasiswaController extends Controller
 {
@@ -13,14 +16,26 @@ class MahasiswaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // Fungsi elaquent menampilkan data menggunakan pagination
         // Yang mulanya Mahasiswa::all, diubah menjadi with() yang menyatakan relasi
-        $mahasiswas = Mahasiswa::with('kelas')->get(); //mengambil semua isi tabel
-        $post = Mahasiswa::orderBy('Nim','desc')->paginate(6);
+        $pagination = 3;
+
+        // $mahasiswas = Mahasiswa::when($request->keyword, function ($query) use ($request) {
+        //     $query
+        //     ->where('nim', 'like', "%{$request->keyword}%")
+        //     ->orWhere('nama', 'like', "%{$request->keyword}%")
+        //     ->orWhere('jurusan', 'like', "%{$request->keyword}%");
+        // })->orderBy('nim')->paginate($pagination);
+
+        // $mahasiswas->appends($request->only('keyword'));
+
+        $mahasiswas = Mahasiswa::with('kelas')->get();
+
+        $mahasiswas = Mahasiswa::orderBy('Nim','desc')->paginate($pagination);
         return view('mahasiswas.index',compact('mahasiswas'))
-            ->with('i', (request()->input('page',1)-1)*5);
+            ->with('i',($request->input('page',1)-1) * 3);
     }
 
     /**
@@ -150,5 +165,13 @@ class MahasiswaController extends Controller
         Mahasiswa::find($nim)->delete();
         return redirect()->route('mahasiswa.index')
             -> with('success', 'Mahasiswa Berhasil Dihapus');
+    }
+
+    public function nilai($nim)
+    {
+        // // menampilkan detail data nilai dengan menemukan/berdasarkan NIM Mahasiswa
+        $Mahasiswa = Mahasiswa::where('nim', $nim)->first();
+        // dd($Mahasiswa);
+        return view('mahasiswas.nilai', ['Mahasiswa'=>$Mahasiswa]);
     }
 }

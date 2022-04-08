@@ -15,3 +15,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::resource('mahasiswa', MahasiswaController::class);
+
+Route::get('/nilai/{nim}', [MahasiswaController::class, 'nilai'])->name('nilai');
