@@ -6,7 +6,9 @@ use App\Models\Kelas;
 use App\Models\Mahasiswa;
 use App\Models\Mahasiswa_MataKuliah;
 use App\Models\MataKuliah;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use MahasiswaMatakuliah;
 
 class MahasiswaController extends Controller
@@ -21,21 +23,22 @@ class MahasiswaController extends Controller
         // Fungsi elaquent menampilkan data menggunakan pagination
         // Yang mulanya Mahasiswa::all, diubah menjadi with() yang menyatakan relasi
         $pagination = 3;
+        $mahasiswas = Mahasiswa::with('kelas')->when($request->keyword, function($query) use ($request){
+            $query
+            ->where('nim', 'like', "%{$request->keyword}%")
+             ->orWhere('nama', 'like', "%{$request->keyword}%")
+             ->orWhere('jurusan', 'like', "%{$request->keyword}%")
+             ->orWhereHas('kelas', function (Builder $kelas) use ($request){
+                $kelas->where('nama_kelas', 'like', "%{$request->keyword}%");
+             });
+        })
+        ->orderBy('nim')
+        ->paginate($pagination);
 
-        // $mahasiswas = Mahasiswa::when($request->keyword, function ($query) use ($request) {
-        //     $query
-        //     ->where('nim', 'like', "%{$request->keyword}%")
-        //     ->orWhere('nama', 'like', "%{$request->keyword}%")
-        //     ->orWhere('jurusan', 'like', "%{$request->keyword}%");
-        // })->orderBy('nim')->paginate($pagination);
+        $mahasiswas->appends($request->only('keyword'));
 
-        // $mahasiswas->appends($request->only('keyword'));
-
-        $mahasiswas = Mahasiswa::with('kelas')->get();
-
-        $mahasiswas = Mahasiswa::orderBy('Nim','desc')->paginate($pagination);
         return view('mahasiswas.index',compact('mahasiswas'))
-            ->with('i',($request->input('page',1)-1) * 3);
+            ->with('i',(request()->input('page',1)-1) * $pagination);
     }
 
     /**
@@ -61,6 +64,7 @@ class MahasiswaController extends Controller
         $request->validate([
             'nim' => 'required',
             'nama' => 'required',
+            'foto' => 'required',
             'kelas' => 'required',
             'jurusan' => 'required',
             'no_handphone' => 'required',
@@ -69,6 +73,7 @@ class MahasiswaController extends Controller
         $mahasiswa = new Mahasiswa;
         $mahasiswa->nim = $request->get('nim');
         $mahasiswa->nama = $request->get('nama');
+        $mahasiswa->foto = $request->file('foto')->store('images', 'public');
         $mahasiswa->jurusan = $request->get('jurusan');
         $mahasiswa->no_handphone = $request->get('no_handphone');
         // $mahasiswa->save();
@@ -129,6 +134,7 @@ class MahasiswaController extends Controller
         $request->validate([
             'nim' => 'required',
             'nama' => 'required',
+            'foto' => 'required',
             'kelas' => 'required',
             'jurusan' => 'required',
             'no_handphone' => 'required',
@@ -138,6 +144,12 @@ class MahasiswaController extends Controller
         $mahasiswa = Mahasiswa::with('kelas')->where('nim', $nim)->first();
         $mahasiswa->nim = $request->get('nim');
         $mahasiswa->nama = $request->get('nama');
+
+        if ($mahasiswa->foto && file_exists(storage_path('app/public/' . $mahasiswa->foto))) {
+            Storage::delete('public/' . $mahasiswa->foto);
+        }
+        $mahasiswa->foto = $request->file('foto')->store('images', 'public');
+
         $mahasiswa->jurusan = $request->get('jurusan');
         $mahasiswa->no_handphone = $request->get('no_handphone');
 

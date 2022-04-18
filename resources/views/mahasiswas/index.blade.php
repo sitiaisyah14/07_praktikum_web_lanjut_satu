@@ -7,13 +7,19 @@
                 <h2>JURUSAN TEKNOLOGI INFORMASI-POLITEKNIK NEGERI MALANG</h2>
             </div>
             <br><br>
-            <form action="{{ url()->current() }}" method="get" class="form-inline">
-                <div class="relative mx-sm-3 mb-2">
-                  <input type="search" name="keyword" value="{{ request('keyword') }}" placeholder="Search your data....." class="form-control">
-                  <button type="submit" class="btn btn-secondary mb-1"> Search</button>
-                  <a type="submit" class="btn btn-info mb-1" href="{{route('mahasiswa.index')}}"> Refresh</a>
+            {{-- Searching --}}
+            <div class="col-md-6">
+                <div class="float-left">
+                    <form action="{{ url()->current() }}" method="get" class="form-inline">
+                        <div class="relative mx-sm-3 mb-2">
+                          <input type="search" name="keyword" value="{{ request('keyword') }}" placeholder="Search your data....." class="form-control">
+                          <button type="submit" class="btn btn-secondary mb-1"> Search</button>
+                          <a type="submit" class="btn btn-info mb-1" href="{{route('mahasiswa.index')}}"> Refresh</a>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+
             <div class="float-right my-2">
                 <a class="btn btn-success" href="{{route('mahasiswa.create')}}"> Input Mahasiswa</a>
            </div>
@@ -30,6 +36,7 @@
         <tr>
             <th>Nim</th>
             <th>Nama</th>
+            <th>Foto</th>
             <th>Kelas</th>
             <th>Jurusan</th>
             <th>No_Handphone</th>
@@ -39,6 +46,7 @@
         <tr>
             <td>{{$Mahasiswa->nim}}</td>
             <td>{{$Mahasiswa->nama}}</td>
+            <td><img height="100" width="100" src="{{asset('storage/'.$Mahasiswa->foto)}}" alt="image"></td>
             {{-- <td>{{$Mahasiswa->kelas['nama_kelas']}}</td> --}}
             <td>{{$Mahasiswa->kelas->nama_kelas}}</td>
             <td>{{$Mahasiswa->jurusan}}</td>
