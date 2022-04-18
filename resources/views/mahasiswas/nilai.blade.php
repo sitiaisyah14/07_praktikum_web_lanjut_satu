@@ -39,6 +39,9 @@
             @endforeach
         </table>
         <br>
+        <form class="d-grid gap-2 col-2 mx-auto">
+            <a href="{{route('cetak_pdf' , $Mahasiswa->nim)}}" class="btn btn-danger btn-lg btn-block">Print to PDF</a>
+        </form>
         <form>
             <a href="{{route('mahasiswa.index')}}" class="btn btn-success btn-lg btn-block">Kembali</a>
         </form>
